@@ -14,126 +14,21 @@
 -- current as of XMonad 0.12
 
 ------------------------------------------------------------------------}}}
--- TODO                                                                 {{{
----------------------------------------------------------------------------
-{-|
- GENERAL
- 
- * look into X.H.Scripts -- there are things I want to run at startup, for example
- * X.U.SpawnNamedPipe? xmobars. multiple screens.
- * X.U.WindowState
- * review XMonad.ManageHook https://hackage.haskell.org/package/xmonad-0.12/docs/XMonad-ManageHook.html
- * ? X.A.LinkWorkspaces
- * ? X.A.Search
- * ? X.A.ShowText
- * ? X.A.SimpleDate
- * ? X.A.Warp
- * ? X.A.WindowBringer
- * ? X.A.WorkspaceCursors
- * ? XMonad.Hooks.Minimize / X.H.Minimize or XMonad.Layout.Hidden
- * ? X.L.avoidFloats - tried and couldn't get it to work immediately but seemed interesting
- * XMonad.Hooks.DynamicBars looks useful
- NON XMONAD SPECIFIC
- * fix unplug events that throw false battery warning
- * fix volume controls
- * switch to urxvt with dynamic font sizing?
- * screen locker
- * audio tweaking ... volume working in all cases? output selected intelligently
- * ssd cloning via btrfs
- * go through sections of https://wiki.archlinux.org/index.php/List_of_applications and identify category selections, adding them to personal wiki
- 
- ACTIVE
- * try out XMonad.Layout.Hidden
- * check out https://github.com/paul-axe/dotfiles/blob/master/.xmonad/xmonad.hs for dual xmobar?
- * would be nice to have a couple project spaces that are sys:1 sys:2 etc and related keybindings
- * use toggle float for M-t and make M-S-t sinkAll or toggle float for all
- * Refine bindings. consider greater use of submaps
- * work on helper scripts in general (vol, etc.)
- * xdb / localectl in lieu of xmodmap
- * test hybrid graphics again?
- * power (test tlp again? need way to see if it's doing a whole lot of good, or should I just use manual options... either way nvidia is power hungry)
- * screensaver and screen stuff, caffeine
- * check on avoidmaster for float issues https://wiki.haskell.org/Xmonad/Frequently_asked_questions
- * consider inserting chrome above instead of below on stack
- * either an M-s d style submap for system operations, or top level M4-d M4-s style bindings
- * on project space default action, I'd like to spawn a couple terminals on SYS and group them immediately, then spawn another terminal or browser. how?
- DEFER (should do but uncertain how to solve after initial cursory review, so will defer till have more time to research)
- * just like toggleWS' from CycleWS, it would be nice to make a custom prev/nextWS' that would skip NSP
- * could make a new set of PerScreen width layouts for "small screens" (1280 and under) (non critical...)
- * look intot X.*.PositionStore* as well as whatever the other method of retaining float pos was
- * quickly swapping two windows between master and slave works nicely. I get a little of this with promote, but I'm
-   sure there is a more comprehensive solution I could implement (cycle windows / recent windows?)
- ! Want to be able to spawn a new window directly into a sublayout, not
-   spawn/merge as I'm doing now (this would be a SIGNIFICANT improvement)
- ! add tab/alt-tab cycling through windows
- * add a shutdown hook to spin down tray/other processes that throw unnecessary errors into xorg
- * add withall to send all windows to different workspace
- * look fully into resizing current layout including vertical on 3Col
- * make focused window master automatically on floating
- * see if there is a way to maintain tiled focus post toggle of scratchpad (cf X.L.TrackFloating)
- * move NSP windows that are tiled into workspace AT END or AS MASTER depending on management
- * https://github.com/pjones/xmonadrc has a focus-follows in the tiled layer only
-   also has some dynamic project helper functions
- * if not using dynamic workspaces (just projects) then remove the dynamic workspaces functions from window shifting
- * consider IfMax for further dynamic layout properties
- * revisit mouse resizing of windows in tiled layouts (nice to have not crit)
- * any utility in XMonad-Hooks-ServerMode (tested briefly, couldn't get it working properly)
- * work on my handling of x selection for utility functions ... timer/delay issue?
- DONE 
- * DynamicWorkspaces ... will DynamicProjects replace it entirely? Do I not need it
- * keybindings for unmerge are weird... sublayout not great for what might be a common op
-   could do M-u and M-S-u for mergeall
- * capture f11 and pass it along to window, then shift window (or come up with other way to redraw boundaries)
- * set conditional key bindings depending on layout for tabs view
-   (other pseudo-conditional bindings are handled with a trymessage construct)
- * add in full tabbed layout in standard sequence?
- * fix scratchpad float position - more or less ok now
- * test alternate sublayout style in order to explode current view
- * XMonad.Hooks.DynamicProperty - could be used for Chrome windows that pop up
-   if not already assigned a custom class via flags
- * change keybinding for cycling through tabs quickly.... this should be "top level" mod+something
- * would be nice to have fullscreen work the way I had it where I could fit it in a window as desired
- * make a partial full screen that respects struts
- * X.H.InsertPosition ... do I want to use this for different spawn location? can I use
-   it for only certain windows?
- * XMonad-Hooks-ToggleHook
- ! hotplug monitor scripts
- * fix alert styles
- * dealing with screens/workspaces (binding to move/shift to workspace)
- ! XMonad-Actions-Navigation2D has a lot of features I'm not yet using.
-   E.g. screen related
-   Review the documentation and consider adding.
- TESTED/REJECTED/WONTFIX
- * consider switching to X.L.SimpleFloat + SimpleDecoration for titlebars
- * planekeys? also the new ws project thing i read in change log. also link workspaces
-   RESULT: for now just using projects the prompt to move around ws
- * revisit whether my current use of top level tabbed layout is confusing or best case
-   - does it make sense?
-   - do I actually switch to it a lot? would I?
-   - maybe I could just use Tabs as an orphan layout that I jump to
-   RESULT: i'm ocnvinced the current top level tabs which is always in the
-   layout cycle is, if not optimal, the best I'm going to get for now
- * ? X.A.RotSlaves - not much use since I just use nav2D
- NON XMONAD SPECIFIC TODO
- * check if unclutter is being launched and if the new version is crashing
- -}
-
-------------------------------------------------------------------------}}}
 -- Modules                                                              {{{
 ---------------------------------------------------------------------------
 --import Control.Monad (liftM2)             -- myManageHookShift
 import Control.Monad (liftM, liftM2, join)  -- myManageHookShift
 import Data.List
 import qualified Data.Map as M
-import Data.Monoid
+--import Data.Monoid
 import System.Exit
 import System.IO                            -- for xmonbar
-import System.Posix.Process(executeFile)
+--import System.Posix.Process(executeFile)
 
 import XMonad hiding ( (|||) )              -- ||| from X.L.LayoutCombinators
 import qualified XMonad.StackSet as W       -- myManageHookShift
 
-import XMonad.Actions.Commands
+--import XMonad.Actions.Commands
 import XMonad.Actions.ConditionalKeys       -- bindings per workspace or layout
 import qualified XMonad.Actions.ConstrainedResize as Sqr
 import XMonad.Actions.CopyWindow            -- like cylons, except x windows
@@ -144,10 +39,10 @@ import XMonad.Actions.FloatSnap
 import XMonad.Actions.MessageFeedback       -- pseudo conditional key bindings
 import XMonad.Actions.Navigation2D
 import XMonad.Actions.Promote               -- promote window to master
-import XMonad.Actions.SinkAll
+--import XMonad.Actions.SinkAll
 import XMonad.Actions.SpawnOn
 --import XMonad.Actions.Volume
-import XMonad.Actions.WindowGo
+--import XMonad.Actions.WindowGo
 import XMonad.Actions.WithAll               -- action all the things
 
 import XMonad.Hooks.DynamicLog              -- for xmobar
@@ -162,15 +57,15 @@ import XMonad.Hooks.UrgencyHook
 --import XMonad.Layout hiding ( (|||) )       -- ||| from X.L.LayoutCombinators
 import XMonad.Layout.Accordion
 import XMonad.Layout.BinarySpacePartition
-import XMonad.Layout.BorderResize
-import XMonad.Layout.Column
-import XMonad.Layout.Combo
+--import XMonad.Layout.BorderResize
+--import XMonad.Layout.Column
+--import XMonad.Layout.Combo
 import XMonad.Layout.ComboP
-import XMonad.Layout.DecorationMadness      -- testing alternative accordion styles
-import XMonad.Layout.Dishes
-import XMonad.Layout.DragPane
-import XMonad.Layout.Drawer
-import XMonad.Layout.Fullscreen
+--import XMonad.Layout.DecorationMadness      -- testing alternative accordion styles
+--import XMonad.Layout.Dishes
+--import XMonad.Layout.DragPane
+--import XMonad.Layout.Drawer
+--import XMonad.Layout.Fullscreen
 import XMonad.Layout.Gaps
 import XMonad.Layout.Hidden
 import XMonad.Layout.LayoutBuilder
@@ -184,17 +79,17 @@ import XMonad.Layout.PerScreen              -- Check screen width & adjust layou
 import XMonad.Layout.PerWorkspace           -- Configure layouts on a per-workspace
 import XMonad.Layout.Reflect
 import XMonad.Layout.Renamed
-import XMonad.Layout.ResizableTile          -- Resizable Horizontal border
+--import XMonad.Layout.ResizableTile          -- Resizable Horizontal border
 import XMonad.Layout.ShowWName
 import XMonad.Layout.Simplest
-import XMonad.Layout.SimplestFloat
+--import XMonad.Layout.SimplestFloat
 import XMonad.Layout.Spacing                -- this makes smart space around windows
-import XMonad.Layout.StackTile
+--import XMonad.Layout.StackTile
 import XMonad.Layout.SubLayouts             -- Layouts inside windows. Excellent.
 import XMonad.Layout.ThreeColumns
-import XMonad.Layout.ToggleLayouts          -- Full window at any time
-import XMonad.Layout.TrackFloating
-import XMonad.Layout.TwoPane
+--import XMonad.Layout.ToggleLayouts          -- Full window at any time
+--import XMonad.Layout.TrackFloating
+--import XMonad.Layout.TwoPane
 import XMonad.Layout.WindowNavigation
 
 import XMonad.Prompt                        -- to get my old key bindings working
@@ -202,25 +97,25 @@ import XMonad.Prompt.ConfirmPrompt          -- don't just hard quit
 
 import XMonad.Util.Cursor
 import XMonad.Util.EZConfig                 -- removeKeys, additionalKeys
-import XMonad.Util.Loggers
+--import XMonad.Util.Loggers
 import XMonad.Util.NamedActions
 import XMonad.Util.NamedScratchpad
 import XMonad.Util.NamedWindows
 import XMonad.Util.Paste as P               -- testing
 import XMonad.Util.Run                      -- for spawnPipe and hPutStrLn
-import XMonad.Util.SpawnOnce
+--import XMonad.Util.SpawnOnce
 import XMonad.Util.WorkspaceCompare         -- custom WS functions filtering NSP
 import XMonad.Util.XSelection
 
 
 -- experimenting with tripane
-import XMonad.Layout.Decoration
+--import XMonad.Layout.Decoration
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.Tabbed
-import XMonad.Layout.Maximize
+--import XMonad.Layout.Maximize
 import XMonad.Layout.SimplestFloat
 import XMonad.Layout.Fullscreen
-import XMonad.Layout.NoBorders
+--import XMonad.Layout.NoBorders
 
 -- taffybar specific
 -- import System.Taffybar.Hooks.PagerHints (pagerHints)
