@@ -1648,7 +1648,7 @@ forceCenterFloat = doFloatDep move
 --
 ---- | If the given condition is 'True' then add the given tag name to
 ---- the 
-window being mapped.  Always returns 'Nothing' to continue
+----window being mapped.  Always returns 'Nothing' to continue
 ---- processing other manage hooks.
 --addTagAndContinue :: Query Bool -> String -> MaybeManageHook
 --addTagAndContinue p tag = do
