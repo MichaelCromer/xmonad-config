@@ -1307,7 +1307,7 @@ myStartupHook = do
     -- init-tilingwm sets up all major "desktop environment" like components
     -- spawnOnce "$HOME/bin/wm/init-tilingwm"
     -- spawn "/home/ethan/bin/wm/init-tilingwm"
-    spawn "/home/ethan/bin/wm/init-wallpaper"
+    spawn "xsetroot -grey"
 
     -- init-tray kills and restarts stalone tray, hence just "spawn" so it
     -- runs on restart and will suffice to reposition tray on display changes
