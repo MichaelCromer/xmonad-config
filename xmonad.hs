@@ -16,19 +16,15 @@
 ------------------------------------------------------------------------}}}
 -- Modules                                                              {{{
 ---------------------------------------------------------------------------
---import Control.Monad (liftM2)             -- myManageHookShift
 import Control.Monad (liftM, liftM2, join)  -- myManageHookShift
 import Data.List
 import qualified Data.Map as M
---import Data.Monoid
 import System.Exit
 import System.IO                            -- for xmonbar
---import System.Posix.Process(executeFile)
 
 import XMonad hiding ( (|||) )              -- ||| from X.L.LayoutCombinators
 import qualified XMonad.StackSet as W       -- myManageHookShift
 
---import XMonad.Actions.Commands
 import XMonad.Actions.ConditionalKeys       -- bindings per workspace or layout
 import qualified XMonad.Actions.ConstrainedResize as Sqr
 import XMonad.Actions.CopyWindow            -- like cylons, except x windows
@@ -39,10 +35,7 @@ import XMonad.Actions.FloatSnap
 import XMonad.Actions.MessageFeedback       -- pseudo conditional key bindings
 import XMonad.Actions.Navigation2D
 import XMonad.Actions.Promote               -- promote window to master
---import XMonad.Actions.SinkAll
 import XMonad.Actions.SpawnOn
---import XMonad.Actions.Volume
---import XMonad.Actions.WindowGo
 import XMonad.Actions.WithAll               -- action all the things
 
 import XMonad.Hooks.DynamicLog              -- for xmobar
@@ -54,18 +47,9 @@ import XMonad.Hooks.ManageDocks             -- avoid xmobar
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.UrgencyHook
 
---import XMonad.Layout hiding ( (|||) )       -- ||| from X.L.LayoutCombinators
 import XMonad.Layout.Accordion
 import XMonad.Layout.BinarySpacePartition
---import XMonad.Layout.BorderResize
---import XMonad.Layout.Column
---import XMonad.Layout.Combo
 import XMonad.Layout.ComboP
---import XMonad.Layout.DecorationMadness      -- testing alternative accordion styles
---import XMonad.Layout.Dishes
---import XMonad.Layout.DragPane
---import XMonad.Layout.Drawer
---import XMonad.Layout.Fullscreen
 import XMonad.Layout.Gaps
 import XMonad.Layout.Hidden
 import XMonad.Layout.LayoutBuilder
@@ -79,17 +63,11 @@ import XMonad.Layout.PerScreen              -- Check screen width & adjust layou
 import XMonad.Layout.PerWorkspace           -- Configure layouts on a per-workspace
 import XMonad.Layout.Reflect
 import XMonad.Layout.Renamed
---import XMonad.Layout.ResizableTile          -- Resizable Horizontal border
 import XMonad.Layout.ShowWName
 import XMonad.Layout.Simplest
---import XMonad.Layout.SimplestFloat
 import XMonad.Layout.Spacing                -- this makes smart space around windows
---import XMonad.Layout.StackTile
 import XMonad.Layout.SubLayouts             -- Layouts inside windows. Excellent.
 import XMonad.Layout.ThreeColumns
---import XMonad.Layout.ToggleLayouts          -- Full window at any time
---import XMonad.Layout.TrackFloating
---import XMonad.Layout.TwoPane
 import XMonad.Layout.WindowNavigation
 
 import XMonad.Prompt                        -- to get my old key bindings working
@@ -97,52 +75,18 @@ import XMonad.Prompt.ConfirmPrompt          -- don't just hard quit
 
 import XMonad.Util.Cursor
 import XMonad.Util.EZConfig                 -- removeKeys, additionalKeys
---import XMonad.Util.Loggers
 import XMonad.Util.NamedActions
 import XMonad.Util.NamedScratchpad
 import XMonad.Util.NamedWindows
 import XMonad.Util.Paste as P               -- testing
 import XMonad.Util.Run                      -- for spawnPipe and hPutStrLn
---import XMonad.Util.SpawnOnce
 import XMonad.Util.WorkspaceCompare         -- custom WS functions filtering NSP
 import XMonad.Util.XSelection
 
-
--- experimenting with tripane
---import XMonad.Layout.Decoration
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.Tabbed
---import XMonad.Layout.Maximize
 import XMonad.Layout.SimplestFloat
 import XMonad.Layout.Fullscreen
---import XMonad.Layout.NoBorders
-
--- taffybar specific
--- import System.Taffybar.Hooks.PagerHints (pagerHints)
--- to demo and comment out or remove
--- import XMonad.Layout.Master -- used to test a dynamic layout. worked, but will remove in lieu of sublayouts
--- import XMonad.Actions.CycleSelectedLayouts -- nice but doesn't work well with sublayouts
--- import XMonad.Actions.Plane
--- import XMonad.Layout.IndependentScreens
--- import XMonad.Util.Timer
--- recent windows from cycle windows -- couldn't get it working on quick try: revisit this
--- import XMonad.Actions.CycleWindows
--- testing -- not a lot of value added, or am I missing something
--- import XMonad.Hooks.Place
-----
--- following for the combocombo test from
--- http://xmonad.org/xmonad-docs/xmonad-contrib/src/XMonad-Config-Droundy.html
--- import XMonad.Layout.Square ( Square(Square) )
--- import XMonad.Layout.BoringWindows
--- import XMonad.Layout.Grid
-----
--- import XMonad.Layout.SimpleDecoration
--- testing -- couldn't get this to work
--- import XMonad.Layout.TrackFloating
--- testing
--- import XMonad.Hooks.ServerMode
--- import XMonad.Actions.Commands 
--- import Control.Concurrent (threadDelay)
 
 ------------------------------------------------------------------------}}}
 -- Main                                                                 {{{
@@ -1363,7 +1307,7 @@ myStartupHook = do
     -- init-tilingwm sets up all major "desktop environment" like components
     -- spawnOnce "$HOME/bin/wm/init-tilingwm"
     -- spawn "/home/ethan/bin/wm/init-tilingwm"
-    spawn "/home/ethan/bin/wm/init-wallpaper"
+    spawn "xsetroot -grey"
 
     -- init-tray kills and restarts stalone tray, hence just "spawn" so it
     -- runs on restart and will suffice to reposition tray on display changes
