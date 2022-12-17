@@ -132,83 +132,22 @@ myConfig p = def
 -- Workspaces                                                           {{{
 ---------------------------------------------------------------------------
 
-wsAV    = "AV"
-wsBSA   = "BSA"
-wsCOM   = "COM"
-wsDOM   = "DOM"
-wsDMO   = "DMO"
-wsFLOAT = "FLT"
-wsGEN   = "GEN"
-wsGCC   = "GCC"
-wsMON   = "MON"
-wsOSS   = "OSS"
-wsRAD   = "RAD"
-wsRW    = "RW"
-wsSYS   = "SYS"
-wsTMP   = "TMP"
-wsVIX   = "VIX"
-wsWRK   = "WRK"
-wsWRK2  = "WRK:2"
-wsGGC   = "GGC"
+ws0 = "0"
+ws1 = "1"
+ws2 = "2"
+ws3 = "3"
+ws4 = "4"
+ws5 = "5"
+ws6 = "6"
+ws7 = "7"
+ws8 = "8"
+ws9 = "9"
 
 -- myWorkspaces = map show [1..9]
-myWorkspaces = [wsGEN, wsWRK, wsWRK2, wsSYS, wsMON, wsFLOAT, wsRW, wsTMP]
+myWorkspaces = [ws1, ws2, ws3, ws4, ws5, ws6, ws7, ws8, ws9, ws0] 
 
 projects :: [Project]
-projects =
-
-    [ Project   { projectName       = wsGEN
-                , projectDirectory  = "~/"
-                , projectStartHook  = Nothing
-                }
-
-    , Project   { projectName       = wsSYS
-                , projectDirectory  = "~/"
-                , projectStartHook  = Just $ do spawnOn wsSYS myTerminal
-                                                spawnOn wsSYS myTerminal
-                                                spawnOn wsSYS myTerminal
-                }
-
-    , Project   { projectName       = wsDMO
-                , projectDirectory  = "~/"
-                -- , projectStartHook  = Just $ do spawn "/usr/lib/xscreensaver/binaryring"
-                , projectStartHook  = Just $ do spawn "/usr/lib/xscreensaver/spheremonics"
-                                                runInTerm "-name top" "top"
-                                                runInTerm "-name top" "htop"
-                                                runInTerm "-name glances" "glances"
-                                                spawn "/usr/lib/xscreensaver/cubicgrid"
-                                                spawn "/usr/lib/xscreensaver/surfaces"
-                }
-
-    , Project   { projectName       = wsVIX
-                , projectDirectory  = "~/.xmonad"
-                , projectStartHook  = Just $ do runInTerm "-name vix" "vim ~/.xmonad/xmonad.hs"
-                                                spawnOn wsVIX myTerminal
-                                                spawnOn wsVIX myTerminal
-                }
-
-    , Project   { projectName       = wsMON
-                , projectDirectory  = "~/"
-                , projectStartHook  = Just $ do runInTerm "-name glances" "glances"
-                }
-
-    , Project   { projectName       = wsWRK
-                , projectDirectory  = "~/wrk"
-                , projectStartHook  = Just $ do spawnOn wsWRK myTerminal
-                                                spawnOn wsWRK myBrowser
-                }
-
-    , Project   { projectName       = wsRAD
-                , projectDirectory  = "~/"
-                , projectStartHook  = Just $ do spawn myBrowser
-                }
-
-    , Project   { projectName       = wsTMP
-                , projectDirectory  = "~/"
-                -- , projectStartHook  = Just $ do spawn $ myBrowser ++ " https://mail.google.com/mail/u/0/#inbox/1599e6883149eeac"
-                , projectStartHook  = Just $ do return ()
-                }
-    ]
+projects = []
 
 ------------------------------------------------------------------------}}}
 -- Applications                                                         {{{
@@ -430,8 +369,6 @@ barFull = avoidStruts $ Simplest
 -- cf http://xmonad.org/xmonad-docs/xmonad-contrib/src/XMonad-Config-Droundy.html
 
 myLayoutHook = showWorkspaceName
-             $ onWorkspace wsFLOAT floatWorkSpace
-             $ fullscreenFloat -- fixes floating windows going full screen, while retaining "bounded" fullscreen
              $ fullScreenToggle
              $ fullBarToggle
              $ mirrorToggle
@@ -442,7 +379,6 @@ myLayoutHook = showWorkspaceName
 --    testTall = Tall 1 (1/50) (2/3)
 --    myTall = subLayout [] Simplest $ trackFloating (Tall 1 (1/20) (1/2))
 
-    floatWorkSpace      = simplestFloat
     fullBarToggle       = mkToggle (single FULLBAR)
     fullScreenToggle    = mkToggle (single FULL)
     mirrorToggle        = mkToggle (single MIRROR)
@@ -1038,10 +974,6 @@ myKeys conf = let
     [ ("M-<Space>"              , addName "Launcher"                        $ spawn myLauncher)
     , ("M-<Return>"             , addName "Terminal"                        $ spawn myTerminal)
     , ("M-\\"                   , addName "Browser"                         $ spawn myBrowser)
-    , ("M-c"                    , addName "NSP Chat"                        $ bindOn WS [(wsWRK, namedScratchpadAction scratchpads "hangoutsWork"),
-                                                                              ("", namedScratchpadAction scratchpads "hangoutsPersonal")])
-    , ("M-t"                    , addName "NSP Tasks"                       $ bindOn WS [(wsWRK, namedScratchpadAction scratchpads "trelloWork"),
-                                                                              ("", namedScratchpadAction scratchpads "trello")])
     , ("M-m"                    , addName "NSP Music"                       $ namedScratchpadAction scratchpads "googleMusic")
     , ("M-v"                    , addName "NSP Video"                       $ namedScratchpadAction scratchpads "plex")
     , ("M1-x"                   , addName "NSP Xawtv"                       $ namedScratchpadAction scratchpads "xawtv")
