@@ -1,0 +1,50 @@
+
+xmonad.hs:105:27: error:
+    • Variable not in scope: projects :: [Project]
+    • Perhaps you meant data constructor ‘Project’ (imported from XMonad.Actions.DynamicProjects)
+    |
+105 |         $ dynamicProjects projects
+    |                           ^^^^^^^^
+
+xmonad.hs:381:27: error:
+    • Ambiguous type variable ‘a0’ arising from a use of ‘simplestFloat’
+      prevents the constraint ‘(Eq a0)’ from being solved.
+      Relevant bindings include
+        floatWorkSpace :: XMonad.Layout.LayoutModifier.ModifiedLayout
+                            XMonad.Layout.WindowArranger.WindowArranger SimplestFloat a0
+          (bound at xmonad.hs:381:5)
+      Probable fix: use a type annotation to specify what ‘a0’ should be.
+      These potential instances exist:
+        instance Eq FontSet -- Defined in ‘Graphics.X11.Xlib.Extras’
+        instance Eq FontStruct -- Defined in ‘Graphics.X11.Xlib.Font’
+        instance [safe] Eq Arc -- Defined in ‘Graphics.X11.Xlib.Types’
+        ...plus 65 others
+        ...plus 71 instances involving out-of-scope types
+        (use -fprint-potential-instances to see them all)
+    • In the expression: simplestFloat
+      In an equation for ‘floatWorkSpace’: floatWorkSpace = simplestFloat
+      In an equation for ‘myLayoutHook’:
+          myLayoutHook
+            = showWorkspaceName
+                $ fullscreenFloat
+                    $ fullScreenToggle
+                        $ fullBarToggle $ mirrorToggle $ reflectToggle $ flex ||| tabs
+            where
+                floatWorkSpace = simplestFloat
+                fullBarToggle = mkToggle (single FULLBAR)
+                fullScreenToggle = mkToggle (single FULL)
+                mirrorToggle = mkToggle (single MIRROR)
+                ....
+    |
+381 |     floatWorkSpace      = simplestFloat
+    |                           ^^^^^^^^^^^^^
+
+xmonad.hs:977:91: error: Variable not in scope: wsWRK :: String
+    |
+977 |     , ("M-c"                    , addName "NSP Chat"                        $ bindOn WS [(wsWRK, namedScratchpadAction scratchpads "hangoutsWork"),
+    |                                                                                           ^^^^^
+
+xmonad.hs:979:91: error: Variable not in scope: wsWRK :: String
+    |
+979 |     , ("M-t"                    , addName "NSP Tasks"                       $ bindOn WS [(wsWRK, namedScratchpadAction scratchpads "trelloWork"),
+    |                                                                                           ^^^^^
