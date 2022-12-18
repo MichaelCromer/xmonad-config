@@ -8,15 +8,21 @@
 --     _|      _|  _|      _|    _|_|    _|    _|    _|_|_|    _|_|_|    --
 --                                                                       --
 ---------------------------------------------------------------------------
--- Ethan Schoonover <es@ethanschoonover.com> @ethanschoonover            --
--- https://github.com/altercation                                        --
+
+{-
+
+    Michael Cromer's XMonad config
+        based on 
+            - https://github.com/altercation/dotfiles-tilingwm
+
+-}
+
 ---------------------------------------------------------------------------
--- current as of XMonad 0.12
 
 ------------------------------------------------------------------------}}}
--- Modules                                                              {{{
+-- Imports                                                              {{{
 ---------------------------------------------------------------------------
-import Control.Monad (liftM, liftM2, join)  -- myManageHookShift
+--import Control.Monad (liftM, liftM2, join)  -- myManageHookShift
 import Data.List
 import qualified Data.Map as M
 import System.Exit
@@ -93,24 +99,18 @@ import XMonad.Layout.Fullscreen
 ---------------------------------------------------------------------------
 
 main = do
-
-    xmproc <- spawnPipe myStatusBar
-
-    -- for independent screens
-    -- nScreens <- countScreens
-
-    -- for taffybar, add pagerHints below
-
     xmonad 
-        $ dynamicProjects projects
         $ withNavigation2DConfig myNav2DConf
-        -- $ withUrgencyHook NoUrgencyHook
         $ withUrgencyHook LibNotifyUrgencyHook
         $ ewmh
         $ addDescrKeys' ((myModMask, xK_F1), showKeybindings) myKeys
-        $ myConfig xmproc
+        $ myConfig 
 
-myConfig p = def
+------------------------------------------------------------------------}}}
+-- Configuration                                                        {{{
+---------------------------------------------------------------------------
+
+myConfig = def
         { borderWidth        = border
         , clickJustFocuses   = myClickJustFocuses
         , focusFollowsMouse  = myFocusFollowsMouse
@@ -119,7 +119,6 @@ myConfig p = def
         , manageHook         = myManageHook
         , handleEventHook    = myHandleEventHook
         , layoutHook         = myLayoutHook
-        , logHook            = myLogHook p
         , modMask            = myModMask
         , mouseBindings      = myMouseBindings
         , startupHook        = myStartupHook
@@ -127,118 +126,19 @@ myConfig p = def
         , workspaces         = myWorkspaces
         }
 
+myClickJustFocuses   = True
+myFocusFollowsMouse  = False
 
-------------------------------------------------------------------------}}}
--- Workspaces                                                           {{{
----------------------------------------------------------------------------
-
-ws0 = "0"
-ws1 = "1"
-ws2 = "2"
-ws3 = "3"
-ws4 = "4"
-ws5 = "5"
-ws6 = "6"
-ws7 = "7"
-ws8 = "8"
-ws9 = "9"
-
--- myWorkspaces = map show [1..9]
-myWorkspaces = [ws1, ws2, ws3, ws4, ws5, ws6, ws7, ws8, ws9, ws0] 
-
-projects :: [Project]
-projects = []
-
-------------------------------------------------------------------------}}}
--- Applications                                                         {{{
----------------------------------------------------------------------------
-
--- | Uses supplied function to decide which action to run depending on current workspace name.
-
---myTerminal          = "terminator"
---myTerminalClass     = "Terminator"
 myTerminal          = "gnome-terminal"
 myAltTerminal       = "cool-retro-term"
-myBrowser           = "firefox" -- chrome with WS profile dirs
-myBrowserClass      = "Google-chrome-beta"
-myStatusBar         = "xmobar -x0 /home/ethan/.xmonad/xmobar.conf"
+myBrowser           = "firefox"
 myLauncher          = "dmenu_run"
 
-
--- I'm using a custom browser launching script (see myBrowser above) that
--- is workspace aware. It launches an instance of Chrome that is unique
--- on specific workspaces. Thus on "GEN" workspace I use my "normal"
--- browser profile, while on "WRK" I use a different profile. This is
--- roughly equivalent to using Chrome's built in profiles, but has the
--- benefit of launching immediately with the correct profile.
---
--- In addition to this, I use per workspace bindings to toggle Hangouts
--- chat windows and Trello windows based on whether I'm on, for example,
--- my personal or work workspace.
---
--- This is particularly useful for Trello since I can launch a project
--- related Trello "app" instance on a project workspace.
---
--- This system utilizes:
--- * my workspace aware browser script
--- * X.U.NamedScratchPads
--- * bindOn via X.A.PerWorkspaceKeys (NO... now using ConditionalKeys custom module)
--- * bindOn via X.A.ConditionalKeys
-
--- TODO: change this to a lookup for all workspaces
-hangoutsCommand     = myBrowser ++ " --app-id=knipolnnllmklapflnccelgolnpehhpl"
-hangoutsTitle     = "Google Hangouts - es@ethanschoonover.com"
-hangoutsPrefix      = "Google Hangouts"
-hangoutsResource    = "crx_nckgahadagoaajjgafhacjanaoiihapd"
-isHangoutsFor s     = (className =? myBrowserClass
-                      <&&> fmap (isPrefixOf hangoutsPrefix) title
-                      <&&> fmap (isInfixOf s) title)
-isPersonalHangouts  = isHangoutsFor "ethanschoonover"
-isWorkHangouts      = isHangoutsFor "eschoonover"
-
--- TODO: change this to a lookup for all workspaces
-trelloCommand       = "dex $HOME/.local/share/applications/Trello.desktop"
-trelloWorkCommand   = "dex $HOME/.local/share/applications/TrelloWork.desktop"
-trelloWork2Command  = "dex $HOME/.local/share/applications/TrelloWork2.desktop"
-trelloInfix         = "Trello"
-trelloResource      = "crx_jijnmpkkfkjaihbhffejemnpbbglahim"
-trelloWorkResource  = "crx_fkbbihpadkgbnhphndjgblgelahbiede"
-trelloWork2Resource = "crx_bgemgoheeofmogacohnlmpldjlogegoh"
-isTrello            = (resource =? trelloResource)
-isTrelloWork        = (resource =? trelloWorkResource)
-isTrelloWork2       = (resource =? trelloWork2Resource)
-
-googleMusicCommand  = "dex $HOME/.local/share/applications/Music.desktop"
-googleMusicInfix    = "Google Play Music"
-googleMusicResource = "crx_ioljlgoncmlkbcepmminebblkddfjofl"
-isGoogleMusic       = (resource =? googleMusicResource)
-
-plexCommand         = "dex $HOME/.local/share/applications/Plex.desktop"
-plexInfix           = "Plex"
-plexResource        = "crx_fpniocchabmgenibceglhnfeimmdhdfm"
-isPlex              = (resource =? plexResource)
-
-isConsole           = (className =? "Terminator")
-                    <&&> (stringProperty "WM_WINDOW_ROLE" =? "Scratchpad")
-myConsole           = "terminator -T console -p console --role=Scratchpad"
-
-scratchpads =
-    [   (NS "hangoutsPersonal"  hangoutsCommand isPersonalHangouts defaultFloating)
-    ,   (NS "hangoutsWork"  hangoutsCommand isWorkHangouts defaultFloating)
-    ,   (NS "trello"  trelloCommand isTrello nonFloating)
-    ,   (NS "trelloWork"  trelloWorkCommand isTrelloWork nonFloating)
-    ,   (NS "googleMusic"  googleMusicCommand isGoogleMusic nonFloating)
-    ,   (NS "plex"  plexCommand isPlex defaultFloating)
-    ,   (NS "console"  myConsole isConsole nonFloating)
-    ,   (NS "xawtv" "xawtv" (resource =? "xawtv") (customFloating $ W.RationalRect (2/3) (1/6) (1/5) (1/3)) )
-    ] 
+myWorkspaces = map show [1..9]
 
 ------------------------------------------------------------------------}}}
 -- Theme                                                                {{{
 ---------------------------------------------------------------------------
-
-myFocusFollowsMouse  = False
-myClickJustFocuses   = True
 
 base03  = "#002b36"
 base02  = "#073642"
@@ -255,19 +155,19 @@ magenta = "#d33682"
 violet  = "#6c71c4"
 blue    = "#268bd2"
 cyan    = "#2aa198"
-green       = "#859900"
+green   = "#859900"
 
 -- sizes
 gap         = 10
 topbar      = 10
 border      = 0
-prompt      = 20
-status      = 20
+prompt      = 10
+status      = 10
 
 myNormalBorderColor     = "#000000"
 myFocusedBorderColor    = active
 
-active      = blue
+active      = green
 activeWarn  = red
 inactive    = base02
 focusColor  = blue
@@ -278,8 +178,6 @@ myBigFont   = "-*-terminus-medium-*-*-*-*-240-*-*-*-*-*-*"
 myWideFont  = "xft:Eurostar Black Extended:"
             ++ "style=Regular:pixelsize=180:hinting=true"
 
--- this is a "fake title" used as a highlight bar in lieu of full borders
--- (I find this a cleaner and less visually intrusive solution)
 topBarTheme = def
     { fontName              = myFont
     , inactiveBorderColor   = base03
@@ -845,8 +743,8 @@ myLayoutHook = showWorkspaceName
 
 
 
-------------------------------------------------------------------------}}}
--- Bindings                                                             {{{
+---------------------------------------------------------------------------
+-- Keybindings     
 ---------------------------------------------------------------------------
 
 myModMask = mod4Mask -- super (and on my system, hyper) keys
@@ -1049,56 +947,6 @@ restartXmonad :: X ()
 restartXmonad = do
     spawn "xmonad --restart"
 
-------------------------------------------------------------------------}}}
--- Log                                                                  {{{
----------------------------------------------------------------------------
-
-myLogHook h = do
-
-    -- following block for copy windows marking
-    copies <- wsContainingCopies
-    let check ws | ws `elem` copies =
-                   pad . xmobarColor yellow red . wrap "*" " "  $ ws
-                 | otherwise = pad ws
-
-    fadeWindowsLogHook myFadeHook
-    ewmhDesktopsLogHook
-    --dynamicLogWithPP $ defaultPP
-    dynamicLogWithPP $ def
-
-        { ppCurrent             = xmobarColor active "" . wrap "[" "]"
-        , ppTitle               = xmobarColor active "" . shorten 50
-        , ppVisible             = xmobarColor base0  "" . wrap "(" ")"
-        , ppUrgent              = xmobarColor red    "" . wrap " " " "
-        , ppHidden              = check
-        , ppHiddenNoWindows     = const ""
-        , ppSep                 = xmobarColor red blue "  :  "
-        , ppWsSep               = " "
-        , ppLayout              = xmobarColor yellow ""
-        , ppOrder               = id
-        , ppOutput              = hPutStrLn h  
-        , ppSort                = fmap 
-                                  (namedScratchpadFilterOutWorkspace.)
-                                  (ppSort def)
-                                  --(ppSort defaultPP)
-        , ppExtras              = [] }
-
-myFadeHook = composeAll
-    [ opaque -- default to opaque
-    , isUnfocused --> opacity 0.85
-    , (className =? "Terminator") <&&> (isUnfocused) --> opacity 0.9
-    , (className =? "URxvt") <&&> (isUnfocused) --> opacity 0.9
-    , fmap ("Google" `isPrefixOf`) className --> opaque
-    , isDialog --> opaque 
-    --, isUnfocused --> opacity 0.55
-    --, isFloating  --> opacity 0.75
-    ]
-
-------------------------------------------------------------------------}}}
--- Actions                                                              {{{
----------------------------------------------------------------------------
-
-
 ---------------------------------------------------------------------------
 -- Urgency Hook                                                            
 ---------------------------------------------------------------------------
@@ -1125,7 +973,7 @@ myManageHook :: ManageHook
 myManageHook =
         manageSpecific
     <+> manageDocks
-    <+> namedScratchpadManageHook scratchpads
+    <+> namedScratchpadManageHook []
     <+> fullscreenManageHook
     <+> manageSpawn
     where
@@ -1133,14 +981,7 @@ myManageHook =
             [ resource =? "desktop_window" -?> doIgnore
             , resource =? "stalonetray"    -?> doIgnore
             , resource =? "vlc"    -?> doFloat
-            , resource =? trelloResource -?> doFullFloat
-            , resource =? trelloWorkResource -?> doFullFloat
-            , resource =? googleMusicResource -?> doFullFloat
-            , resource =? plexResource -?> doCenterFloat
-            , resource =? hangoutsResource -?> insertPosition End Newer
             , transience
-            , isBrowserDialog -?> forceCenterFloat
-            --, isConsole -?> forceCenterFloat
             , isRole =? gtkFile  -?> forceCenterFloat
             , isDialog -?> doCenterFloat
             , isRole =? "pop-up" -?> doCenterFloat
@@ -1148,8 +989,9 @@ myManageHook =
                            "_NET_WM_WINDOW_TYPE_SPLASH" -?> doCenterFloat
             , resource =? "console" -?> tileBelowNoFocus
             , isFullscreen -?> doFullFloat
-            , pure True -?> tileBelow ]
-        isBrowserDialog = isDialog <&&> className =? myBrowserClass
+            , pure True -?> tileBelow 
+            ]
+
         gtkFile = "GtkFileChooserDialog"
         isRole = stringProperty "WM_WINDOW_ROLE"
         -- insert WHERE and focus WHAT
@@ -1172,14 +1014,8 @@ myManageHook =
 
 myHandleEventHook = docksEventHook
                 <+> fadeWindowsEventHook
-                <+> dynamicTitle myDynHook
                 <+> handleEventHook def
                 <+> XMonad.Layout.Fullscreen.fullscreenEventHook
-    where
-        myDynHook = composeAll
-            [ isPersonalHangouts --> forceCenterFloat
-            , isWorkHangouts --> insertPosition End Newer
-            ]
 
 ---------------------------------------------------------------------------
 -- Custom hook helpers
