@@ -13,8 +13,8 @@
 
     Michael Cromer's XMonad config
         based on 
+            - https://xmonad.org/TUTORIAL.html
             - https://github.com/altercation/dotfiles-tilingwm
-
 -}
 
 ---------------------------------------------------------------------------
@@ -42,6 +42,8 @@ import XMonad.Actions.Navigation2D
 import XMonad.Actions.Promote               -- promote window to master
 import XMonad.Actions.SpawnOn
 import XMonad.Actions.WithAll               -- action all the things
+
+import XMonad.Config.Prime (X)
 
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.FadeWindows
@@ -767,14 +769,9 @@ prevEmptyWS    = findWorkspace getSortByIndex Prev EmptyWS 1
 myShiftTo      = (>>= (windows . W.shift))
 myMoveTo       = (>>= (windows . W.view))
 myForceMoveTo  = (>>= (windows . W.greedyView))
+myFollowTo     = (>>= (windows . (\w -> W.greedyView w . W.shift w)))
 
-followToNextEmptyWorkspace = (myShiftTo ws) >> (myMoveTo ws)
-                            where
-                                ws = nextEmptyWS
-
---testFollowFunction = findWorkspace id Next EmptyWS 1
--- findWorkspace :: X WorkspaceSort -> Direction1D -> WSType -> Int -> X WorkspaceId
--- WorkspaceSort :: [WindowSpace] -> [WindowSpace]                      
+testFollowFunction = myFollowTo nextEmptyWS
 
 myKeys conf = let
     subKeys str ks = subtitle str : mkNamedKeymap conf ks
@@ -834,7 +831,7 @@ myKeys conf = let
      ++ zipM' "M-S-"              "Move window"                               dirKeys dirs windowSwap True
      ++ zipM  "M-C-"              "Merge w/sublayout"                         dirKeys dirs (sendMessage . pullGroup)
      ++ zipM' "M-"                "Navigate screen"                           arrowKeys dirs screenGo True
-     -- ++ zipM' "M-S-"             "Swap workspace to screen"                  arrowKeys dirs screenSwap True
+     ++ zipM' "M-S-"              "Swap workspace to screen"                  arrowKeys dirs screenSwap True
      ) ^++^
 
      -----------------------------------------------------------------------
@@ -843,11 +840,12 @@ myKeys conf = let
 
      subKeys "Workspaces & Projects" (
       [ ("M-n"                  , addName "Next empty workspace"            $ moveTo Next EmptyWS)
-      , ("M-S-n"                , addName "Shift to next empty workspace"   $ followToNextEmptyWorkspace)
+      , ("M-S-n"                , addName "Shift to next empty workspace"   $ myFollowTo nextEmptyWS)
       , ("M-."                  , addName "Move to next non-empty WS"       $ myMoveTo nextNonEmptyWS)
       , ("M-,"                  , addName "Move to prev non-empty WS"       $ myMoveTo prevNonEmptyWS)
       , ("M-a"                  , addName "Toggle last workspace"           $ toggleWS)
-      , ("M-w"                  , addName "Swap visible workspaces"         $ swapNextScreen)
+      , ("M-S-w"                , addName "Swap screens"                    $ swapNextScreen)
+      , ("M-w"                  , addName "Focus other screen"              $ nextScreen)
       ]
       ++ zipM "M-"                "View      ws"                              wsKeys [0..] (withNthWorkspace W.view)
       ++ zipM "M-S-"              "Move w to ws"                              wsKeys [0..] (withNthWorkspace W.shift)
