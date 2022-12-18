@@ -22,7 +22,6 @@
 ------------------------------------------------------------------------}}}
 -- Imports                                                              {{{
 ---------------------------------------------------------------------------
---import Control.Monad (liftM, liftM2, join)  -- myManageHookShift
 import Data.List
 import qualified Data.Map as M
 import System.Exit
@@ -44,8 +43,6 @@ import XMonad.Actions.Promote               -- promote window to master
 import XMonad.Actions.SpawnOn
 import XMonad.Actions.WithAll               -- action all the things
 
-import XMonad.Hooks.DynamicLog              -- for xmobar
-import XMonad.Hooks.DynamicProperty         -- 0.12 broken; works with github version
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.FadeWindows
 import XMonad.Hooks.InsertPosition
@@ -55,18 +52,13 @@ import XMonad.Hooks.UrgencyHook
 
 import XMonad.Layout.Accordion
 import XMonad.Layout.BinarySpacePartition
-import XMonad.Layout.ComboP
 import XMonad.Layout.Gaps
 import XMonad.Layout.Hidden
-import XMonad.Layout.LayoutBuilder
 import XMonad.Layout.LayoutCombinators
-import XMonad.Layout.LayoutScreens
 import XMonad.Layout.MultiToggle
 import XMonad.Layout.MultiToggle.Instances
 import XMonad.Layout.NoFrillsDecoration
-import XMonad.Layout.OneBig
 import XMonad.Layout.PerScreen              -- Check screen width & adjust layouts
-import XMonad.Layout.PerWorkspace           -- Configure layouts on a per-workspace
 import XMonad.Layout.Reflect
 import XMonad.Layout.Renamed
 import XMonad.Layout.ShowWName
@@ -87,11 +79,9 @@ import XMonad.Util.NamedWindows
 import XMonad.Util.Paste as P               -- testing
 import XMonad.Util.Run                      -- for spawnPipe and hPutStrLn
 import XMonad.Util.WorkspaceCompare         -- custom WS functions filtering NSP
-import XMonad.Util.XSelection
 
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.Tabbed
-import XMonad.Layout.SimplestFloat
 import XMonad.Layout.Fullscreen
 
 ------------------------------------------------------------------------}}}
