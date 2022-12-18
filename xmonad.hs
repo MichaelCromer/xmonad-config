@@ -116,8 +116,9 @@ myConfig = def
         , workspaces         = myWorkspaces
         }
 
-myClickJustFocuses   = True
-myFocusFollowsMouse  = False
+myClickJustFocuses  = True
+myFocusFollowsMouse = False
+myModMask           = mod4Mask -- super (and on my system, hyper) keys
 
 myTerminal          = "gnome-terminal"
 myAltTerminal       = "cool-retro-term"
@@ -737,8 +738,6 @@ myLayoutHook = showWorkspaceName
 -- Keybindings     
 ---------------------------------------------------------------------------
 
-myModMask = mod4Mask -- super (and on my system, hyper) keys
-
 -- Display keyboard mappings using zenity
 -- from https://github.com/thomasf/dotfiles-thomasf-xmonad/
 --              blob/master/.xmonad/lib/XMonad/Config/A00001.hs
@@ -756,16 +755,28 @@ showKeybindings x = addName "Show Keybindings" $ io $ do
 
 wsKeys = map show $ [1..9] ++ [0]
 
--- hidden, non-empty workspaces less scratchpad
-nextNonEmptyWS = findWorkspace getSortByIndexNoSP Next HiddenNonEmptyWS 1
-        >>= \t -> (windows . W.view $ t)
-prevNonEmptyWS = findWorkspace getSortByIndexNoSP Prev HiddenNonEmptyWS 1
-        >>= \t -> (windows . W.view $ t)
-getSortByIndexNoSP =
-        fmap (.namedScratchpadFilterOutWorkspace) getSortByIndex
+-- hidden, non-empty workspaces 
+nextNonEmptyWS = findWorkspace getSortByIndex Next HiddenNonEmptyWS 1
+        -- >>= \t -> (windows . W.view $ t)
+prevNonEmptyWS = findWorkspace getSortByIndex Prev HiddenNonEmptyWS 1
+        -- >>= \t -> (windows . W.view $ t)
+
+nextEmptyWS    = findWorkspace getSortByIndex Next EmptyWS 1
+prevEmptyWS    = findWorkspace getSortByIndex Prev EmptyWS 1
+
+myShiftTo      = (>>= (windows . W.shift))
+myMoveTo       = (>>= (windows . W.view))
+myForceMoveTo  = (>>= (windows . W.greedyView))
+
+followToNextEmptyWorkspace = (myShiftTo ws) >> (myMoveTo ws)
+                            where
+                                ws = nextEmptyWS
+
+--testFollowFunction = findWorkspace id Next EmptyWS 1
+-- findWorkspace :: X WorkspaceSort -> Direction1D -> WSType -> Int -> X WorkspaceId
+-- WorkspaceSort :: [WindowSpace] -> [WindowSpace]                      
 
 myKeys conf = let
-
     subKeys str ks = subtitle str : mkNamedKeymap conf ks
     dirKeys   = ["j","k","h","l"]
     arrowKeys = ["<D>","<U>","<L>","<R>"]
@@ -831,13 +842,14 @@ myKeys conf = let
      -----------------------------------------------------------------------
 
      subKeys "Workspaces & Projects" (
-      [ ("M-w"                  , addName "Switch to Project"               $ switchProjectPrompt warmPromptTheme)
-      , ("M-S-w"                , addName "Shift to Project"                $ shiftToProjectPrompt warmPromptTheme)
-      , ("M-n"                  , addName "Next non-empty workspace"        $ nextNonEmptyWS)
-      , ("M-S-n"                , addName "Prev non-empty workspace"        $ prevNonEmptyWS)
-      , ("M-a"                  , addName "Toggle last workspace"           $ toggleWS' ["NSP"])
+      [ ("M-n"                  , addName "Next empty workspace"            $ moveTo Next EmptyWS)
+      , ("M-S-n"                , addName "Shift to next empty workspace"   $ followToNextEmptyWorkspace)
+      , ("M-."                  , addName "Move to next non-empty WS"       $ myMoveTo nextNonEmptyWS)
+      , ("M-,"                  , addName "Move to prev non-empty WS"       $ myMoveTo prevNonEmptyWS)
+      , ("M-a"                  , addName "Toggle last workspace"           $ toggleWS)
+      , ("M-w"                  , addName "Swap visible workspaces"         $ swapNextScreen)
       ]
-      ++ zipM "M-"                "View      ws"                              wsKeys [0..] (withNthWorkspace W.greedyView)
+      ++ zipM "M-"                "View      ws"                              wsKeys [0..] (withNthWorkspace W.view)
       ++ zipM "M-S-"              "Move w to ws"                              wsKeys [0..] (withNthWorkspace W.shift)
       ++ zipM "M-S-C-"            "Copy w to ws"                              wsKeys [0..] (withNthWorkspace copy)
      ) ^++^
