@@ -160,7 +160,7 @@ status      = 10
 myNormalBorderColor     = "#000000"
 myFocusedBorderColor    = active
 
-active      = green
+active      = magenta
 activeWarn  = red
 inactive    = base02
 focusColor  = blue
@@ -928,6 +928,7 @@ myStartupHook = do
     -- spawnOnce "$HOME/bin/wm/init-tilingwm"
     -- spawn "/home/ethan/bin/wm/init-tilingwm"
     spawn "xsetroot -grey"
+    spawn "~/.screenlayout/myScreenLayout.sh"
     spawn "xscreensaver &"
     -- init-tray kills and restarts stalone tray, hence just "spawn" so it
     -- runs on restart and will suffice to reposition tray on display changes
