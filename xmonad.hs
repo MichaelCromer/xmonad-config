@@ -149,9 +149,10 @@ violet  = "#6c71c4"
 blue    = "#268bd2"
 cyan    = "#2aa198"
 green   = "#859900"
+ocelott = "#fdcc1b"
 
 -- sizes
-gap         = 10
+gap         = 5
 topbar      = 10
 border      = 0
 prompt      = 10
@@ -160,7 +161,7 @@ status      = 10
 myNormalBorderColor     = "#000000"
 myFocusedBorderColor    = active
 
-active      = magenta
+active      = ocelott
 activeWarn  = red
 inactive    = base02
 focusColor  = blue
