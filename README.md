@@ -3,7 +3,7 @@
 This is my config file for my XMonad setup. It has one external dependency
 (which I think is actually included as standard in the latest unstable
 release). I include a local copy of that dependency in the repo so this should
-be a totally vanilla install into $HOME/.xmonad
+be a totally vanilla install into `$HOME/.xmonad`.
 
 ## A Manifesto
 
