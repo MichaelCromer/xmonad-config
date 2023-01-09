@@ -106,8 +106,8 @@ myConfig = def
         { borderWidth        = border
         , clickJustFocuses   = myClickJustFocuses
         , focusFollowsMouse  = myFocusFollowsMouse
-        , normalBorderColor  = myNormalBorderColor
-        , focusedBorderColor = myFocusedBorderColor
+        , normalBorderColor  = myNormalBorderColour
+        , focusedBorderColor = myFocusedBorderColour
         , manageHook         = myManageHook
         , handleEventHook    = myHandleEventHook
         , layoutHook         = myLayoutHook
@@ -150,6 +150,7 @@ blue    = "#268bd2"
 cyan    = "#2aa198"
 green   = "#859900"
 ocelott = "#fdcc1b"
+lime    = "#11CC11"
 
 -- sizes
 gap         = 5
@@ -158,14 +159,14 @@ border      = 0
 prompt      = 10
 status      = 10
 
-myNormalBorderColor     = "#000000"
-myFocusedBorderColor    = active
+myNormalBorderColour     = "#000000"
+myFocusedBorderColour    = active
 
-active      = ocelott
+active      = lime
 activeWarn  = red
 inactive    = base02
-focusColor  = blue
-unfocusColor = base02
+focusColour  = blue
+unfocusColour = base02
 
 myFont      = "-*-terminus-medium-*-*-*-*-160-*-*-*-*-*-*"
 myBigFont   = "-*-terminus-medium-*-*-*-*-240-*-*-*-*-*-*"
