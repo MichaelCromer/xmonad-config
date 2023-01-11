@@ -126,6 +126,8 @@ myTerminal          = "gnome-terminal"
 myAltTerminal       = "cool-retro-term"
 myBrowser           = "firefox"
 myLauncher          = "dmenu_run"
+myLatexEditor       = "texstudio"
+myTextEditor        = "vim"
 
 myWorkspaces = map show [1..9]
 
@@ -810,6 +812,7 @@ myKeys conf = let
     [ ("M-<Space>"              , addName "Launcher"                        $ spawn myLauncher)
     , ("M-<Return>"             , addName "Terminal"                        $ spawn myTerminal)
     , ("M-\\"                   , addName "Browser"                         $ spawn myBrowser)
+    , ("M-l"                    , addName "Latex"                           $ spawn myLatexEditor)
     ] ^++^
 
     -----------------------------------------------------------------------
