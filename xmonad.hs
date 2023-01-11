@@ -812,7 +812,7 @@ myKeys conf = let
     [ ("M-<Space>"              , addName "Launcher"                        $ spawn myLauncher)
     , ("M-<Return>"             , addName "Terminal"                        $ spawn myTerminal)
     , ("M-\\"                   , addName "Browser"                         $ spawn myBrowser)
-    , ("M-l"                    , addName "Latex"                           $ spawn myLatexEditor)
+    , ("M-t"                    , addName "Latex"                           $ spawn myLatexEditor)
     ] ^++^
 
     -----------------------------------------------------------------------
