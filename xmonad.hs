@@ -124,7 +124,7 @@ myModMask           = mod4Mask -- super (and on my system, hyper) keys
 
 myTerminal          = "gnome-terminal"
 myAltTerminal       = "cool-retro-term"
-myBrowser           = "firefox"
+myBrowser           = "qutebrowser"
 myLauncher          = "dmenu_run"
 myLatexEditor       = "texstudio"
 myTextEditor        = "vim"
