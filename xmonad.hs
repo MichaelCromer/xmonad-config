@@ -19,7 +19,7 @@
 
 ---------------------------------------------------------------------------
 
-------------------------------------------------------------------------}}}
+---------------------------------------------------------------------------
 -- Imports                                                              {{{
 ---------------------------------------------------------------------------
 import Data.List
@@ -737,11 +737,8 @@ myLayoutHook = showWorkspaceName
     --             wideScreen   = smartTall ****||* smartTabbed
     --             normalScreen = smartTall ***||** smartTabbed
 
-
-
-
----------------------------------------------------------------------------
--- Keybindings     
+------------------------------------------------------------------------}}}
+-- Keybindings                                                          {{{
 ---------------------------------------------------------------------------
 
 -- Display keyboard mappings using zenity
@@ -775,14 +772,18 @@ myMoveTo       = (>>= (windows . W.view))
 myForceMoveTo  = (>>= (windows . W.greedyView))
 myFollowTo     = (>>= (windows . (\w -> W.greedyView w . W.shift w)))
 
-testFollowFunction = myFollowTo nextEmptyWS
-
 myKeys conf = let
     subKeys str ks = subtitle str : mkNamedKeymap conf ks
     dirKeys   = ["j","k","h","l"]
     arrowKeys = ["<D>","<U>","<L>","<R>"]
     dirs      = [ D,  U,  L,  R ]
+    -- this is a hacky hack hack. Trying to switch to screen directionally but I only have two screens, so either
+    -- direction is just 'next screen' I mimic actual directional travel with (shiftNextScreen >> nextScreen) but only
+    -- use the lr keys. vim motions obviously already taken with directional travel around a ws/screen
+    lrArrows  = ["<L>", "<R>"]
+    lrDirs    = [L, R]
 
+    zip1  m nm ks as f   = zipWith (\k d -> (m ++ k, addName nm $ f)) ks as
     zipM  m nm ks as f   = zipWith (\k d -> (m ++ k, addName nm $ f d)) ks as
     zipM' m nm ks as f b = zipWith (\k d -> (m ++ k, addName nm $ f d b)) ks as
 
@@ -800,43 +801,43 @@ myKeys conf = let
     -- System / Utilities
     -----------------------------------------------------------------------
     subKeys "System"
-    [ ("M-q"                    , addName "Rebuild & restart XMonad"        $ spawn "xmonad --recompile && xmonad --restart")
-    , ("M-S-q"                  , addName "Quit XMonad"                     $ confirmPrompt hotPromptTheme "Quit XMonad" $ io (exitWith ExitSuccess))
-    , ("M-S-z"                  , addName "Lock screen"                     $ spawn "xscreensaver-command -lock")
+    [ ("M-q"              , addName "Rebuild & restart XMonad" $ spawn "xmonad --recompile && xmonad --restart")
+    , ("M-S-q"            , addName "Quit XMonad"              $ confirmPrompt hotPromptTheme "Quit XMonad" $ io (exitWith ExitSuccess))
+    , ("M-S-z"            , addName "Lock screen"              $ spawn "xscreensaver-command -lock")
     ] ^++^
 
-    -----------------------------------------------------------------------
+    ----------------------------------------------------------
     -- Launchers
-    -----------------------------------------------------------------------
+    ----------------------------------------------------------
     subKeys "Launchers"
-    [ ("M-<Space>"              , addName "Launcher"                        $ spawn myLauncher)
-    , ("M-<Return>"             , addName "Terminal"                        $ spawn myTerminal)
-    , ("M-\\"                   , addName "Browser"                         $ spawn myBrowser)
-    , ("M-t"                    , addName "Latex"                           $ spawn myLatexEditor)
+    [ ("M-<Space>"        , addName "Launcher"                 $ spawn myLauncher)
+    , ("M-<Return>"       , addName "Terminal"                 $ spawn myTerminal)
+    , ("M-\\"             , addName "Browser"                  $ spawn myBrowser)
+    , ("M-t"              , addName "Latex"                    $ spawn myLatexEditor)
     ] ^++^
 
-    -----------------------------------------------------------------------
+    ----------------------------------------------------------
     -- Windows
-    -----------------------------------------------------------------------
+    ----------------------------------------------------------
 
     subKeys "Windows" (
-     [ ("M-<Backspace>"         , addName "Kill"                              kill1)
-     , ("M-S-<Backspace>"       , addName "Kill all"                        $ confirmPrompt hotPromptTheme "kill all" $ killAll)
-     , ("M-p"                   , addName "Hide window to stack"            $ withFocused hideWindow)
-     , ("M-S-p"                 , addName "Restore hidden window (FIFO)"    $ popOldestHiddenWindow)
-     , ("M-S-m"                 , addName "Promote"                         $ promote) 
-     , ("M-S-g"                 , addName "Un-merge from sublayout"         $ withFocused (sendMessage . UnMerge))
-     , ("M-g"                   , addName "Merge all into sublayout"        $ withFocused (sendMessage . MergeAll))
-     , ("M-u"                   , addName "Focus urgent"                      focusUrgent)
-     , ("M-m"                   , addName "Focus master"                    $ windows W.focusMaster)
-     , ("M-<Tab>"               , addName "Navigate tabs D"                 $ bindOn LD [("Tabs", windows W.focusDown), ("", onGroup W.focusDown')])
-     , ("M-S-<Tab>"             , addName "Navigate tabs U"                 $ bindOn LD [("Tabs", windows W.focusUp), ("", onGroup W.focusUp')])
+     [ ("M-<Backspace>"   , addName "Kill"                       kill1)
+     , ("M-S-<Backspace>" , addName "Kill all"                 $ confirmPrompt hotPromptTheme "kill all" $ killAll)
+     , ("M-p"             , addName "Hide window to stack"     $ withFocused hideWindow)
+     , ("M-S-p"           , addName "Restore hidden window"    $ popOldestHiddenWindow)
+     , ("M-S-m"           , addName "Promote"                  $ promote) 
+     , ("M-S-g"           , addName "Un-merge from sublayout"  $ withFocused (sendMessage . UnMerge))
+     , ("M-g"             , addName "Merge all into sublayout" $ withFocused (sendMessage . MergeAll))
+     , ("M-u"             , addName "Focus urgent"               focusUrgent)
+     , ("M-m"             , addName "Focus master"             $ windows W.focusMaster)
+     , ("M-<Tab>"         , addName "Navigate tabs D"          $ bindOn LD [("Tabs", windows W.focusDown), ("", onGroup W.focusDown')])
+     , ("M-S-<Tab>"       , addName "Navigate tabs U"          $ bindOn LD [("Tabs", windows W.focusUp), ("", onGroup W.focusUp')])
      ]
-     ++ zipM' "M-"                "Navigate window"                           dirKeys dirs windowGo True
-     ++ zipM' "M-S-"              "Move window"                               dirKeys dirs windowSwap True
-     ++ zipM  "M-C-"              "Merge w/sublayout"                         dirKeys dirs (sendMessage . pullGroup)
-     ++ zipM' "M-"                "Navigate screen"                           arrowKeys dirs screenGo True
-     ++ zipM' "M-S-"              "Swap workspace to screen"                  arrowKeys dirs screenSwap True
+     ++ zipM' "M-"          "Navigate window"                    dirKeys dirs windowGo True
+     ++ zipM' "M-S-"        "Move window"                        dirKeys dirs windowSwap True
+     ++ zipM  "M-C-"        "Merge w/sublayout"                  dirKeys dirs (sendMessage . pullGroup)
+     ++ zipM' "M-"          "Navigate screen"                    arrowKeys dirs screenGo True
+     ++ zip1  "M-S-"        "Swap window to screen"              lrArrows lrDirs (shiftNextScreen >> nextScreen)
      ) ^++^
 
      -----------------------------------------------------------------------
@@ -953,8 +954,8 @@ restartXmonad :: X ()
 restartXmonad = do
     spawn "xmonad --restart"
 
----------------------------------------------------------------------------
--- Urgency Hook                                                            
+------------------------------------------------------------------------}}}
+-- Urgency Hook                                                         {{{
 ---------------------------------------------------------------------------
 -- from https://pbrisbin.com/posts/using_notify_osd_for_xmonad_notifications/
 data LibNotifyUrgencyHook = LibNotifyUrgencyHook deriving (Read, Show)
@@ -968,8 +969,8 @@ instance UrgencyHook LibNotifyUrgencyHook where
 -- cf https://github.com/pjones/xmonadrc
 
 
----------------------------------------------------------------------------
--- New Window Actions
+------------------------------------------------------------------------}}}
+-- New Window Actions                                                   {{{
 ---------------------------------------------------------------------------
 
 -- https://wiki.haskell.org/Xmonad/General_xmonad.hs_config_tips#ManageHook_examples
@@ -1004,8 +1005,8 @@ myManageHook =
         tileBelow = insertPosition Below Newer
         tileBelowNoFocus = insertPosition Below Older
 
----------------------------------------------------------------------------
--- X Event Actions
+------------------------------------------------------------------------}}}
+-- X Event Actions                                                      {{{
 ---------------------------------------------------------------------------
 
 -- for reference, the following line is the same as dynamicTitle myDynHook
@@ -1023,8 +1024,8 @@ myHandleEventHook = docksEventHook
                 <+> handleEventHook def
                 <+> XMonad.Layout.Fullscreen.fullscreenEventHook
 
----------------------------------------------------------------------------
--- Custom hook helpers
+------------------------------------------------------------------------}}}
+-- Custom hook helpers                                                  {{{
 ---------------------------------------------------------------------------
 
 -- from:
@@ -1061,4 +1062,4 @@ forceCenterFloat = doFloatDep move
 
 
 -- vim: ft=haskell:foldmethod=marker:expandtab:ts=4:shiftwidth=4
-
+------------------------------------------------------------------------}}}
