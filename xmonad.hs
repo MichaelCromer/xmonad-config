@@ -70,7 +70,7 @@ import XMonad.Layout.SubLayouts             -- Layouts inside windows. Excellent
 import XMonad.Layout.ThreeColumns
 import XMonad.Layout.WindowNavigation
 
-import XMonad.Prompt                        -- to get my old key bindings working
+import XMonad.Prompt hiding (border)        -- to get my old key bindings working
 import XMonad.Prompt.ConfirmPrompt          -- don't just hard quit
 
 import XMonad.Util.Cursor
